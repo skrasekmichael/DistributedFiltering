@@ -1,6 +1,14 @@
+using DistributedFiltering.Abstractions.Grains;
 using DistributedFiltering.API;
+using DistributedFiltering.API.Requests;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseOrleans((context, siloBuilder) =>
+{
+	siloBuilder.UseLocalhostClustering();
+	siloBuilder.AddMemoryGrainStorage("distributed-filters");
+});
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -18,10 +26,12 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.MapPost("/bilateral-filter", (CreateBilateralJobRequest parameters) =>
+app.AddFilter<IBilateralFilterGrain, BilateralFilterParams, CreateBilateralJobRequest>("/bilateral-filter", (parameters => new BilateralFilterParams
 {
-	
-}).WithOpenApi();
+	RangeSigma = parameters.RangeSigma,
+	SpatialSigma = parameters.SpatialSigma,
+	UnitCount = parameters.UnitCount
+}));
 
 app.Run();
 

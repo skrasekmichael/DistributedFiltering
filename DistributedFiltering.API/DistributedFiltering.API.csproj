@@ -8,12 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsyncAwaitBestPractices" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Orleans.Server" Version="7.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <ProjectReference Include="..\DistributedFiltering.Abstractions\DistributedFiltering.Abstractions.csproj" />
+    <ProjectReference Include="..\DistributedFiltering.Grains\DistributedFiltering.Grains.csproj" />
   </ItemGroup>
 
 </Project>
