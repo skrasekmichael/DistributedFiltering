@@ -11,12 +11,12 @@ namespace DistributedFiltering.API;
 
 public static class WebApplicationExtensions
 {
-	public static void AddFilter<TGrainFilter, TFilterParameters, TCreateJobRequest>(
+	public static void AddFilter<TFilterSegmentGrain, TFilterParameters, TCreateJobRequest>(
 		this WebApplication app, 
 		[StringSyntax("Route")] string route,
 		Func<TCreateJobRequest, TFilterParameters> map
 	)
-		where TGrainFilter : IFilterGrain<TFilterParameters>
+		where TFilterSegmentGrain : IFilterSegmentGrain<TFilterParameters>
 		where TFilterParameters : IFilterParameters
 		where TCreateJobRequest : ICreateJobRequest
 	{
@@ -28,11 +28,11 @@ public static class WebApplicationExtensions
 			{
 				var parameters = map(request);
 
-				var img = await Image.LoadAsync<Rgba32>($"{environment.WebRootPath}/street2.png");
+				var img = await Image.LoadAsync<Rgba32>($"{environment.WebRootPath}/street.png");
 				var data = img.ToImageData();
 				img.Dispose();
 
-				var filterGrain = grainFactory.GetGrain<TGrainFilter>(id);
+				var filterGrain = grainFactory.GetGrain<IFilterGrain<TFilterSegmentGrain, TFilterParameters>>(id);
 				var output = await filterGrain.FilterAsync(data, parameters);
 				var outImg = Image.LoadPixelData<Rgba32>(output.Data, output.Width, output.Height);
 
@@ -44,13 +44,13 @@ public static class WebApplicationExtensions
 
 		app.MapGet(route + "/{id:guid}", async (Guid id, IGrainFactory grainFactory) =>
 		{
-			var fitlerGrain = grainFactory.GetGrain<TGrainFilter>(id);
+			var fitlerGrain = grainFactory.GetGrain<IFilterGrain<TFilterSegmentGrain, TFilterParameters>>(id);
 			return await fitlerGrain.GetStatusAsync();
 		}).WithOpenApi();
 
 		app.MapDelete(route + "/{id:guid}", async (Guid id, IGrainFactory grainFactory) =>
 		{
-			var fitlerGrain = grainFactory.GetGrain<TGrainFilter>(id);
+			var fitlerGrain = grainFactory.GetGrain<IFilterGrain<TFilterSegmentGrain, TFilterParameters>>(id);
 			await fitlerGrain.StopFilteringAsync();
 		}).WithOpenApi();
 	}

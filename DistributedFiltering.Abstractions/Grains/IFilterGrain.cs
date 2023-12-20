@@ -2,7 +2,9 @@
 
 namespace DistributedFiltering.Abstractions.Grains;
 
-public interface IFilterGrain<TFilterParameters> : IGrainWithGuidKey where TFilterParameters : IFilterParameters
+public interface IFilterGrain<TFilterSegmentGrain, TFilterParameters> : IGrainWithGuidKey
+	where TFilterSegmentGrain : IFilterSegmentGrain<TFilterParameters>
+	where TFilterParameters : IFilterParameters
 {
 	Task<ImageData> FilterAsync(ImageData input, TFilterParameters parameters);
 	Task StopFilteringAsync();

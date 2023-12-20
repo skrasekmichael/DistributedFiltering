@@ -1,3 +1,4 @@
+using DistributedFiltering.Abstractions.Contracts;
 using DistributedFiltering.Abstractions.Grains;
 using DistributedFiltering.API;
 using DistributedFiltering.API.Requests;
@@ -26,10 +27,16 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.AddFilter<IBilateralFilterGrain, BilateralFilterParams, CreateBilateralJobRequest>("/bilateral-filter", (parameters => new BilateralFilterParams
+app.AddFilter<IBilateralFilterSegmentGrain, BilateralFilterParams, CreateBilateralJobRequest>("/bilateral-filter", (parameters => new BilateralFilterParams
 {
 	RangeSigma = parameters.RangeSigma,
 	SpatialSigma = parameters.SpatialSigma,
+	UnitCount = parameters.UnitCount
+}));
+
+app.AddFilter<IAddGaussianNoiseSegmentGrain, GaussianNoiseParams, CreateAddNoiseJobRequest>("/add-gaussian-noise-fitler", (parameters => new GaussianNoiseParams
+{
+	Sigma = parameters.Sigma,
 	UnitCount = parameters.UnitCount
 }));
 

@@ -27,6 +27,7 @@ public sealed class BilateralFilterSegmentGrain : Grain, IBilateralFilterSegment
 		return Task.CompletedTask;
 	}
 
+	[ReadOnly]
 	public Task<SegmentFilteringStatus> GetStatusAsync()
 	{
 		return Task.FromResult(new SegmentFilteringStatus()

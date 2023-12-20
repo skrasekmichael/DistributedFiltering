@@ -1,5 +1,4 @@
 ﻿using DistributedFiltering.Abstractions.Contracts;
-using DistributedFiltering.Abstractions.Grains;
 using OpenTK.Mathematics;
 
 namespace DistributedFiltering.Filters.Filters;
