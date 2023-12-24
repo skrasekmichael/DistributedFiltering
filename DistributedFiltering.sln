@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34316.72
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedFiltering.API", "DistributedFiltering.API\DistributedFiltering.API.csproj", "{6F238614-478F-462E-8653-836E37131766}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedFiltering.Server", "DistributedFiltering.Server\DistributedFiltering.Server.csproj", "{6F238614-478F-462E-8653-836E37131766}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedFiltering.Filters", "DistributedFiltering.Filters\DistributedFiltering.Filters.csproj", "{61BB3035-5B42-4F38-A44A-373DD7C64900}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedFiltering.Filters", "DistributedFiltering.Filters\DistributedFiltering.Filters.csproj", "{61BB3035-5B42-4F38-A44A-373DD7C64900}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedFiltering.Abstractions", "DistributedFiltering.Abstractions\DistributedFiltering.Abstractions.csproj", "{45B61B3F-E5BE-498C-A806-D97907271442}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedFiltering.Abstractions", "DistributedFiltering.Abstractions\DistributedFiltering.Abstractions.csproj", "{45B61B3F-E5BE-498C-A806-D97907271442}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedFiltering.Grains", "DistributedFiltering.Grains\DistributedFiltering.Grains.csproj", "{DB8B0B04-EB88-4B40-B52F-4D7D98018C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistributedFiltering.Grains", "DistributedFiltering.Grains\DistributedFiltering.Grains.csproj", "{DB8B0B04-EB88-4B40-B52F-4D7D98018C34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedFiltering.Client", "DistributedFiltering.Client\DistributedFiltering.Client.csproj", "{36A58F7B-F195-45A5-9C5C-47AAB39AE26A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{DB8B0B04-EB88-4B40-B52F-4D7D98018C34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB8B0B04-EB88-4B40-B52F-4D7D98018C34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB8B0B04-EB88-4B40-B52F-4D7D98018C34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36A58F7B-F195-45A5-9C5C-47AAB39AE26A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36A58F7B-F195-45A5-9C5C-47AAB39AE26A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36A58F7B-F195-45A5-9C5C-47AAB39AE26A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36A58F7B-F195-45A5-9C5C-47AAB39AE26A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

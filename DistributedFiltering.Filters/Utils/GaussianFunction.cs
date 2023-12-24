@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace DistributedFiltering.Filters;
+namespace DistributedFiltering.Filters.Utils;
 
 public sealed class GaussianFunction(double sigma)
 {

@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace DistributedFiltering.Filters;
+namespace DistributedFiltering.Filters.Extensions;
 
 public static class VectorExtensions
 {

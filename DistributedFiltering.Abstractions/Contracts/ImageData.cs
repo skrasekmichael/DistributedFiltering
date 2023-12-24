@@ -9,4 +9,13 @@ public sealed class ImageData
 	public required int Width { get; init; }
 	[Id(2)]
 	public required int Height { get; init; }
+
+	public bool IsEmpty() => Data.Length == 0;
+
+	public static ImageData Empty => new()
+	{ 
+		Data = [],
+		Width = 0,
+		Height = 0
+	};
 }

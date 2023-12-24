@@ -3,28 +3,27 @@ using OpenTK.Mathematics;
 
 namespace DistributedFiltering.Filters.Filters;
 
-public sealed class AddGaussianNoiseFilter(Size size, GaussianNoiseParams parameters, int seed) : BaseDistributedFilter(size)
+public sealed class AddGaussianNoiseFilter : BaseDistributedFilter<GaussianNoiseParams>
 {
-	private readonly Random generator = new(seed);
-	private readonly double sigma = parameters.Sigma;
-
-	private double GetNext()
+	protected override unsafe byte[] FilterBatch(Batch batch, GaussianNoiseParams parameters)
 	{
-		//https://stackoverflow.com/questions/218060/random-gaussian-variables
-		double u1 = 1.0 - generator.NextDouble();
-		double u2 = 1.0 - generator.NextDouble();
-		return sigma * Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-	}
+		var generator = new Random();
+		var sigma = parameters.Sigma;
 
-	private byte NextByte(byte src)
-	{
-		var val = GetNext();
-		return (byte)Math.Clamp(src + (int)val, 0, 255);
-	}
+		double GetNext()
+		{
+			//https://stackoverflow.com/questions/218060/random-gaussian-variables
+			double u1 = 1.0 - generator.NextDouble();
+			double u2 = 1.0 - generator.NextDouble();
+			return sigma * Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+		}
 
-	public unsafe byte[] FilterBatch(Batch batch)
-	{
-		doneCount = 0;
+		byte NextByte(byte src)
+		{
+			var val = GetNext();
+			return (byte)Math.Clamp(src + (int)val, 0, 255);
+		}
+
 		var window = batch.FilteringWindow;
 		var output = new byte[window.Width * window.Height * 4];
 

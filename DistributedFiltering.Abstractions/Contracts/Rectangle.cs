@@ -12,5 +12,5 @@ public readonly struct Rectangle(int x, int y, int w, int h)
 	[Id(3)]
 	public int Height { get; init; } = h;
 
-	public override string ToString() => $"{{{X},{Y},{Width},{Height}}}";
+	public override string ToString() => $"[{X},{Y},{Width},{Height}]";
 }
