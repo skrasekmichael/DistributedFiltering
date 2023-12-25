@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace DistributedFiltering.Filters;
+namespace DistributedFiltering.Filters.Extensions;
 
 public static class ImageOfRgb32Extensions
 {

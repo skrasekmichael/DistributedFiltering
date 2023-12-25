@@ -1,26 +1,20 @@
 ﻿using DistributedFiltering.Abstractions.Contracts;
+using DistributedFiltering.Filters.Extensions;
+using DistributedFiltering.Filters.Utils;
 using OpenTK.Mathematics;
 
 namespace DistributedFiltering.Filters.Filters;
 
-public sealed class BilateralFilter : BaseDistributedFilter
+public sealed class BilateralFilter : BaseDistributedFilter<BilateralFilterParams>
 {
-	private readonly int radius, radius2;
-	private readonly GaussianFunction spaceGauss;
-	private readonly GaussianFunction rangeGauss;
-
-	public BilateralFilter(Size size, BilateralFilterParams parameters) : base(size)
+	protected override unsafe byte[] FilterBatch(Batch batch, BilateralFilterParams parameters)
 	{
-		radius = parameters.GetRadius();
-		radius2 = radius * radius;
+		var radius = parameters.GetRadius();
+		var radius2 = radius * radius;
 
-		spaceGauss = new(parameters.SpatialSigma);
-		rangeGauss = new(parameters.RangeSigma);
-	}
+		var spaceGauss = new GaussianFunction(parameters.SpatialSigma);
+		var rangeGauss = new GaussianFunction(parameters.RangeSigma);
 
-	public unsafe byte[] FilterBatch(Batch batch)
-	{
-		doneCount = 0;
 		var window = batch.FilteringWindow;
 		var output = new byte[window.Width * window.Height * 4];
 

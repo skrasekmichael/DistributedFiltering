@@ -1,7 +1,6 @@
-﻿namespace DistributedFiltering.API.Requests;
+﻿namespace DistributedFiltering.Server.Requests;
 
 public sealed class CreateAddNoiseJobRequest : ICreateJobRequest
 {
-	public int UnitCount { get; set; }
 	public double Sigma { get; set; }
 }

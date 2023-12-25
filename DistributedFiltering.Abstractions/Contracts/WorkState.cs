@@ -1,6 +1,6 @@
 ﻿namespace DistributedFiltering.Abstractions.Contracts;
 
-public enum FilteringState
+public enum WorkState
 {
 	NotStarted,
 	Preparing,

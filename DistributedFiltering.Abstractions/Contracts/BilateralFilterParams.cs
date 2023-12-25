@@ -1,13 +1,13 @@
-﻿namespace DistributedFiltering.Abstractions.Contracts;
+﻿using DistributedFiltering.Abstractions.Interfaces;
+
+namespace DistributedFiltering.Abstractions.Contracts;
 
 [GenerateSerializer, Immutable]
 public readonly struct BilateralFilterParams : IFilterParameters
 {
 	[Id(0)]
-	public required int UnitCount { get; init; }
-	[Id(1)]
 	public required double SpatialSigma { get; init; }
-	[Id(2)]
+	[Id(1)]
 	public required double RangeSigma { get; init; }
 
 	public readonly int GetOverlap() => GetRadius();

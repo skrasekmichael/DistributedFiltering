@@ -8,5 +8,5 @@ public readonly struct Size(int w, int h)
 	[Id(1)]
 	public int Height { get; init; } = h;
 
-	public override string ToString() => $"{{{Width},{Height}}}";
+	public override string ToString() => $"[{Width},{Height}]";
 }
