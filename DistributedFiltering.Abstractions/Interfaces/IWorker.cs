@@ -8,6 +8,8 @@ public interface IWorker : IGrainObserver, IAsyncCancelable
 	public Task<bool> StartProcessingAsync(Batch batch, Guid id);
 
 	[ReadOnly]
+	[ResponseTimeout("00:00:05")]
+	[AlwaysInterleave]
 	public ValueTask<SegmentFilteringStatus> GetStatusAsync();
 
 	[ReadOnly]

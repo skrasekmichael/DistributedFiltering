@@ -7,11 +7,10 @@ using Orleans.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseOrleans((context, siloBuilder) =>
+builder.Host.UseOrleans(orleans =>
 {
-	siloBuilder.UseLocalhostClustering();
-	//siloBuilder.AddMemoryGrainStorage("distributed-filtering-storage");
-	siloBuilder.Configure<ClusterOptions>(options =>
+	orleans.UseLocalhostClustering();
+	orleans.Configure<ClusterOptions>(options =>
 	{
 		options.ClusterId = "dev";
 		options.ServiceId = "distributed-filtering";
@@ -34,13 +33,8 @@ builder.Services.AddSingleton(serviceProvider =>
 var app = builder.Build();
 
 app.UseStaticFiles();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.AddFilter<BilateralFilterParams, CreateBilateralJobRequest>("/api/{targetFileName}/apply-bilateral-filter", (parameters => new BilateralFilterParams
 {

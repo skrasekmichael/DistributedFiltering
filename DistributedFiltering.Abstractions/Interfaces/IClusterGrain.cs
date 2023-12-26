@@ -1,4 +1,5 @@
 ﻿using DistributedFiltering.Abstractions.Contracts;
+using Orleans.Concurrency;
 
 namespace DistributedFiltering.Abstractions.Interfaces;
 
@@ -8,6 +9,8 @@ public interface IClusterGrain : IGrainWithIntegerKey
 		where TFilterParameters : IFilterParameters;
 
 	ValueTask StopProcessingAsync();
+
+	[AlwaysInterleave]
 	ValueTask<FilteringStatus> GetStatusAsync();
 
 	Task RegisterWorkerAsync(IWorker worker);

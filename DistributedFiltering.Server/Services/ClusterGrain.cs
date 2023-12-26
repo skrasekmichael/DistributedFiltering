@@ -9,7 +9,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 	private WorkState state = WorkState.NotStarted;
 	private IResultCollector? resultCollector;
 	private long processedCount = 0;
-	private long imageLength = 0;
+	private long imageLength = 1;
 	private Size imageSize;
 	private string outputFileName = string.Empty;
 
@@ -143,7 +143,24 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 	{
 		return new FilteringStatus
 		{
-			SegmentStatuses = await Task.WhenAll(activeWorkers.Select(worker => worker.GetStatusAsync().AsTask())),
+			SegmentStatuses = await Task.WhenAll(activeWorkers.Select(worker =>
+			{
+				return Task.Run(async () =>
+				{
+					try
+					{
+						return await worker.GetStatusAsync();
+					}
+					catch (TimeoutException)
+					{
+						return new SegmentFilteringStatus()
+						{
+							Progress = 0,
+							State = WorkState.Canceled
+						};
+					}
+				});
+			})),
 			State = state,
 			Progress = 100 * processedCount / imageLength
 		};
@@ -151,7 +168,18 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 
 	public async ValueTask StopProcessingAsync()
 	{
-		await Task.WhenAll(activeWorkers.Select(worker => worker.CancelAsync().AsTask()));
+		await Task.WhenAll(activeWorkers.Select(worker =>
+		{
+			return Task.Run(async () =>
+			{
+				try
+				{
+					await worker.CancelAsync();
+				}
+				catch (TimeoutException) { }
+			});
+		}));
+
 		idleWorkers.AddRange(activeWorkers);
 		activeWorkers.Clear();
 		workDistribution.Clear();
