@@ -11,6 +11,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 	private long processedCount = 0;
 	private long imageLength = 0;
 	private Size imageSize;
+	private string outputFileName = string.Empty;
 
 	private readonly List<IWorker> idleWorkers = [];
 	private readonly List<IWorker> activeWorkers = [];
@@ -77,7 +78,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		await Task.WhenAll(pingHadnlers);
 	}
 
-	public async Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData image, TFilterParameters parameters)
+	public async Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData image, TFilterParameters parameters, string output)
 		where TFilterParameters : IFilterParameters
 	{
 		if (state is not WorkState.Completed and not WorkState.Canceled and not WorkState.NotStarted)
@@ -100,6 +101,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		completedWork.Clear();
 		imageLength = image.Width * image.Height * 4;
 		imageSize = new(image.Width, image.Height);
+		outputFileName = output;
 
 		var batches = await Task.Run(() => ImageDataUtils.SplitWork(ref image, 96_000, parameters));
 		logger.LogInformation("Work divided into {bacthCount} batches.", batches.Length);
@@ -215,7 +217,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 			}
 			else
 			{
-				await resultCollector.SaveAsync(image, "result");
+				await resultCollector.SaveAsync(image, outputFileName);
 			}
 
 			state = WorkState.Completed;

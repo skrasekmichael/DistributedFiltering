@@ -2,4 +2,5 @@
 
 public interface ICreateJobRequest
 {
+	string ResultFileName { get; init; }
 }

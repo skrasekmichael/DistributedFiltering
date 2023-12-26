@@ -42,24 +42,24 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.AddFilter<BilateralFilterParams, CreateBilateralJobRequest>("/apply-bilateral-filter", (parameters => new BilateralFilterParams
+app.AddFilter<BilateralFilterParams, CreateBilateralJobRequest>("/api/{targetFileName}/apply-bilateral-filter", (parameters => new BilateralFilterParams
 {
 	RangeSigma = parameters.RangeSigma,
 	SpatialSigma = parameters.SpatialSigma,
 }));
 
-app.AddFilter<GaussianNoiseParams, CreateAddNoiseJobRequest>("/add-gaussian-noise", (parameters => new GaussianNoiseParams
+app.AddFilter<GaussianNoiseParams, CreateAddNoiseJobRequest>("/api/{targetFileName}/add-gaussian-noise", (parameters => new GaussianNoiseParams
 {
 	Sigma = parameters.Sigma
 }));
 
-app.MapGet("/status", async (IGrainFactory grainFactory) =>
+app.MapGet("/api/status", async (IGrainFactory grainFactory) =>
 {
 	var fitlerGrain = grainFactory.GetGrain<IClusterGrain>(0);
 	return await fitlerGrain.GetStatusAsync();
 }).WithOpenApi();
 
-app.MapDelete("/cancel", async (IGrainFactory grainFactory) =>
+app.MapDelete("/api/cancel", async (IGrainFactory grainFactory) =>
 {
 	var fitlerGrain = grainFactory.GetGrain<IClusterGrain>(0);
 	await fitlerGrain.StopProcessingAsync();
