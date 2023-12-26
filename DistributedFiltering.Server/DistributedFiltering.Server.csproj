@@ -20,4 +20,10 @@
     <ProjectReference Include="..\DistributedFiltering.Filters\DistributedFiltering.Filters.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
