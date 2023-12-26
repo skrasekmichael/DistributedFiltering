@@ -5,7 +5,7 @@ namespace DistributedFiltering.Abstractions.Interfaces;
 
 public interface IClusterGrain : IGrainWithIntegerKey
 {
-	Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData input, TFilterParameters parameters, string output)
+	Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData input, TFilterParameters parameters, int maxBatchSize, string output)
 		where TFilterParameters : IFilterParameters;
 
 	ValueTask StopProcessingAsync();

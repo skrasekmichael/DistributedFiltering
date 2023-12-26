@@ -39,9 +39,9 @@ public static class WebApplicationExtensions
 			image.Dispose();
 
 			var cluster = grainFactory.GetGrain<IClusterGrain>(0);
-			if (await cluster.DistributeWorkAsync(data, parameters, request.ResultFileName))
+			if (await cluster.DistributeWorkAsync(data, parameters, request.BatchSize.GetSize(), request.ResultFileName))
 			{
-				return Results.Created("/status", "Job created.");
+				return Results.Created("/api/status", "Job created.");
 			}
 			return Results.BadRequest();
 		}).WithOpenApi();

@@ -1,7 +1,9 @@
 param (
 	$Image = "street",
 	$ClientCount = 6,
-	$Port = 4999
+	$Port = 4999,
+	[ValidateSet("bilateral", "noise")]
+	$Filter = "bilateral"
 )
 
 $serverDir = "$PSScriptRoot/DistributedFiltering.Server/bin/Debug/net8.0/";
@@ -57,16 +59,24 @@ function Run-Clients {
 $server = Run-Server
 $clients = Run-Clients -Count $ClientCount
 
-$parameters = @{
-	"SpatialSigma" = 7
-	"RangeSigma" = 30
-	"ResultFileName" = "$Image.result"
-	"WorkerCount" = 4
-} | ConvertTo-Json;
+Start-Sleep -Seconds 6;
 
-Start-Sleep -Seconds 5;
+if ($Filter -eq "bilateral") {
+	$parameters = @{
+		"SpatialSigma" = 7
+		"RangeSigma" = 30
+		"ResultFileName" = "$Image.result"
+	} | ConvertTo-Json;
+	$filterName = "apply-bilateral-filter";
+} elseif ($Filter -eq "noise") {
+	$parameters = @{
+		"Sigma" = 30
+		"ResultFileName" = "$Image.result"
+	} | ConvertTo-Json;
+	$filterName = "add-gaussian-noise";
+}
 
-Invoke-RestMethod -Method Post -ContentType "application/json" -Uri "$api/$Image/apply-bilateral-filter" -Body $parameters;
+Invoke-RestMethod -Method Post -ContentType "application/json" -Uri "$api/$Image/$filterName" -Body $parameters;
 
 do {
 	$response = Invoke-RestMethod -ContentType "application/json" -Uri "$api/status";

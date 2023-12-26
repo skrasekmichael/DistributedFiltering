@@ -78,7 +78,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		await Task.WhenAll(pingHadnlers);
 	}
 
-	public async Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData image, TFilterParameters parameters, string output)
+	public async Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData image, TFilterParameters parameters, int maxBatchSize, string output)
 		where TFilterParameters : IFilterParameters
 	{
 		if (state is not WorkState.Completed and not WorkState.Canceled and not WorkState.NotStarted)
@@ -103,7 +103,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		imageSize = new(image.Width, image.Height);
 		outputFileName = output;
 
-		var batches = await Task.Run(() => ImageDataUtils.SplitWork(ref image, 96_000, parameters));
+		var batches = await Task.Run(() => ImageDataUtils.SplitWork(ref image, maxBatchSize, parameters));
 		logger.LogInformation("Work divided into {bacthCount} batches.", batches.Length);
 
 		logger.LogInformation("Distributing work to workers.");
