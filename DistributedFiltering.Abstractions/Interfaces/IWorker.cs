@@ -5,14 +5,12 @@ namespace DistributedFiltering.Abstractions.Interfaces;
 
 public interface IWorker : IGrainObserver, IAsyncCancelable
 {
-	public Task StartProcessingAsync<TFilter, TFilterParameters>(
-		Batch batch,
-		TFilterParameters parameters,
-		int segmentIndex,
-		IResultCollector collector)
-		where TFilter : IDistributedFilter<TFilterParameters>, new()
-		where TFilterParameters : IFilterParameters;
+	public Task<bool> StartProcessingAsync(Batch batch, Guid id);
 
 	[ReadOnly]
 	public ValueTask<SegmentFilteringStatus> GetStatusAsync();
+
+	[ReadOnly]
+	[ResponseTimeout("00:00:02")]
+	public Task PingAsync();
 }

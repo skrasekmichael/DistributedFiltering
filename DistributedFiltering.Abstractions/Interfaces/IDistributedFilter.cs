@@ -2,8 +2,7 @@
 
 namespace DistributedFiltering.Abstractions.Interfaces;
 
-public interface IDistributedFilter<TFilterParameters> : IBaseDistributedFilter
-	where TFilterParameters : IFilterParameters
+public interface IDistributedFilter : IBaseDistributedFilter
 {
-	public byte[] Filter(Batch data, TFilterParameters parameters);
+	public byte[] Filter(Batch data);
 }

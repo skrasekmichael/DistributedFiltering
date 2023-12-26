@@ -1,4 +1,5 @@
 ﻿using DistributedFiltering.Abstractions.Contracts;
+using DistributedFiltering.Abstractions.Interfaces;
 
 namespace DistributedFiltering.Filters.Utils;
 
@@ -23,43 +24,36 @@ public static class ImageDataUtils
 		return output;
 	}
 
-	public unsafe static Batch[] SplitWork(ref ImageData image, int count, int overlap = 0)
+	public unsafe static Batch[] SplitWork<TFilterParameters>(
+		ref ImageData image,
+		int segmentMaxSize,
+		TFilterParameters parameters)
+		where TFilterParameters : IFilterParameters
 	{
-		if (count <= 1)
-		{
-			return
-			[
-				new()
-				{
-					Input = image.Data,
-					FilteringWindow = new(0, 0, image.Width, image.Height),
-					Size = new(image.Width, image.Height),
-					ImageSize = new(image.Width, image.Height)
-				}
-			];
-		}
+		var overlap = Math.Clamp(parameters.GetOverlap(), 0, image.Height);
 
-		overlap = Math.Max(overlap, 0);
-		int windowHeight = (int)Math.Round((double)image.Height / count);
+		var windowHeight = Math.Max((int)Math.Floor((double)segmentMaxSize / image.Width), 1);
+		var count = (int)Math.Ceiling((double)image.Height / windowHeight);
 
 		var batches = new Batch[count];
 
-		for (int i = 0; i < count; i++)
+		for (int y = 0; y < count; y++)
 		{
-			var startY = Math.Max(i * windowHeight - overlap, 0);
-			var endY = Math.Min((i + 1) * windowHeight + overlap, image.Height - 1);
+			var startY = Math.Max(y * windowHeight - overlap, 0);
+			var endY = Math.Min((y + 1) * windowHeight + overlap, image.Height - 1);
 
-			batches[i] = new()
+			batches[y] = new()
 			{
 				Input = GetImageData(image.Data, image.Width, startY, endY),
 				FilteringWindow = new(
 					x: 0,
-					y: i * windowHeight - startY,
+					y: y * windowHeight - startY,
 					w: image.Width,
-					h: Math.Min((i + 1) * windowHeight, image.Height) - i * windowHeight
+					h: Math.Min((y + 1) * windowHeight, image.Height) - y * windowHeight
 				),
 				Size = new(image.Width, endY - startY + 1),
-				ImageSize = new(image.Width, image.Height)
+				Index = y,
+				Parameters = parameters
 			};
 		}
 

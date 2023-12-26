@@ -1,5 +1,4 @@
 ﻿using DistributedFiltering.Abstractions.Interfaces;
-using DistributedFiltering.Grains;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,11 +12,11 @@ public sealed class WorkerConnectionService(
 {
 	protected override async Task ExecuteAsync(CancellationToken ct)
 	{
-		var workManager = client.GetGrain<IWorkManagerGrain>(0);
+		var cluster = client.GetGrain<IClusterGrain>(0);
 
-		var worker = new Worker(serviceProvider.GetRequiredService<ILogger<Worker>>());
+		var worker = new Worker(serviceProvider.GetRequiredService<ILogger<Worker>>(), cluster);
 		var wokrerRef = client.CreateObjectReference<IWorker>(worker);
-		await workManager.RegisterWorkerAsync(wokrerRef);
+		await cluster.RegisterWorkerAsync(wokrerRef);
 
 		while (!ct.IsCancellationRequested)
 		{

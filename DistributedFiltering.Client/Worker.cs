@@ -1,15 +1,15 @@
 ﻿using AsyncAwaitBestPractices;
 using DistributedFiltering.Abstractions.Contracts;
 using DistributedFiltering.Abstractions.Interfaces;
+using DistributedFiltering.Filters.Extensions;
 using Microsoft.Extensions.Logging;
 using Orleans.Concurrency;
 
-namespace DistributedFiltering.Grains;
+namespace DistributedFiltering.Client;
 
-[Reentrant]
-public sealed class Worker(ILogger<Worker> logger) : IWorker
+public sealed class Worker(ILogger<Worker> logger, IClusterGrain workManagerGrain) : IWorker
 {
-	private IBaseDistributedFilter? distributedFilter;
+	private IDistributedFilter? distributedFilter;
 	private WorkState state = WorkState.NotStarted;
 
 	public ValueTask CancelAsync()
@@ -40,38 +40,44 @@ public sealed class Worker(ILogger<Worker> logger) : IWorker
 		return ValueTask.FromResult(status);
 	}
 
-	public Task StartProcessingAsync<TFilter, TFilterParameters>(
-		Batch batch,
-		TFilterParameters parameters,
-		int segmentIndex,
-		IResultCollector collector)
-		where TFilter : IDistributedFilter<TFilterParameters>, new()
-		where TFilterParameters : IFilterParameters
+	[ReadOnly]
+	public Task PingAsync() => Task.CompletedTask;
+
+	public Task<bool> StartProcessingAsync(Batch batch, Guid id)
 	{
 		if (state is not WorkState.Completed and not WorkState.Canceled and not WorkState.NotStarted)
 		{
 			logger.LogError("Worker is already working ... (status: {clusterStatus})", state);
-			return Task.CompletedTask;
+			return Task.FromResult(false);
 		}
 
-		logger.LogInformation("Starting filter of type {filterType}.", typeof(TFilter));
+		state = WorkState.Preparing;
+
+		try
+		{
+			var filter = batch.Parameters.GetFilter();
+			distributedFilter = filter;
+		}
+		catch
+		{
+			state = WorkState.Canceled;
+			logger.LogError("Worker is already working ... (status: {clusterStatus})", state);
+			return Task.FromResult(false);
+		}
+
+		logger.LogInformation("Starting filter of type {filterType}.", distributedFilter.GetType());
 
 		Task.Run(async () =>
 		{
-			state = WorkState.Preparing;
-
-			var filter = new TFilter();
-			distributedFilter = filter;
-
 			state = WorkState.InProgress;
-			logger.LogInformation("Filtering segment {segmentIndex}.", segmentIndex);
-			var output = filter.Filter(batch, parameters);
-			logger.LogInformation("Segment {segmentIndex} completed.", segmentIndex);
+			logger.LogInformation("Filtering segment {segmentIndex}.", batch.Index);
+			var output = distributedFilter.Filter(batch);
+			logger.LogInformation("Segment {segmentIndex} completed.", batch.Index);
 
-			await collector.ReportResultAsync(output, segmentIndex);
 			state = WorkState.Completed;
+			await workManagerGrain.ReportBatchResultAsync(output, batch.Index, id);
 		}).SafeFireAndForget();
 
-		return Task.CompletedTask;
+		return Task.FromResult(true);
 	}
 }

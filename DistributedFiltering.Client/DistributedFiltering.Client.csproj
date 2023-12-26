@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AsyncAwaitBestPractices" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
@@ -16,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DistributedFiltering.Abstractions\DistributedFiltering.Abstractions.csproj" />
-    <ProjectReference Include="..\DistributedFiltering.Grains\DistributedFiltering.Grains.csproj" />
+    <ProjectReference Include="..\DistributedFiltering.Filters\DistributedFiltering.Filters.csproj" />
   </ItemGroup>
 
 </Project>

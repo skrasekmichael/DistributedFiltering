@@ -1,14 +1,14 @@
 ﻿using DistributedFiltering.Abstractions.Interfaces;
-using DistributedFiltering.Grains;
 
 namespace DistributedFiltering.Server.Services;
 
-public sealed class OnStartupService(ResultCollector collector, IGrainFactory grainFactory) : BackgroundService
+public sealed class OnStartupService(IGrainFactory grainFactory, ResultCollector collector) : BackgroundService
 {
-	protected override async Task ExecuteAsync(CancellationToken ct)
+	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
-		var workManagerGrain = grainFactory.GetGrain<IWorkManagerGrain>(0);
+		var cluster = grainFactory.GetGrain<IClusterGrain>(0);
+
 		var collectorRef = grainFactory.CreateObjectReference<IResultCollector>(collector);
-		await workManagerGrain.RegisterCollectorAsync(collectorRef);
+		await cluster.RegisterCollectorAsync(collectorRef);
 	}
 }

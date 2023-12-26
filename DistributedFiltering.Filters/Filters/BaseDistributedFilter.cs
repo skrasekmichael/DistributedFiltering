@@ -4,7 +4,7 @@ using OpenTK.Mathematics;
 
 namespace DistributedFiltering.Filters.Filters;
 
-public abstract class BaseDistributedFilter<TFilterParameters> : IDistributedFilter<TFilterParameters>
+public abstract class BaseDistributedFilter<TFilterParameters> : IDistributedFilter
 	where TFilterParameters : IFilterParameters
 {
 	protected int doneCount = 0;
@@ -39,11 +39,15 @@ public abstract class BaseDistributedFilter<TFilterParameters> : IDistributedFil
 		Progress = doneCount * sizeCoeff;
 	}
 
-	public byte[] Filter(Batch data, TFilterParameters parameters)
+	public byte[] Filter(Batch data)
 	{
 		doneCount = 0;
-		sizeCoeff = 100.0 / (data.ImageSize.Width * data.ImageSize.Height);
-		return FilterBatch(data, parameters);
+		sizeCoeff = 100.0 / (data.FilteringWindow.Width * data.FilteringWindow.Height);
+		
+		if (data.Parameters is TFilterParameters parameters)
+			return FilterBatch(data, parameters);
+
+		return [];
 	}
 
 	protected abstract byte[] FilterBatch(Batch data, TFilterParameters parameters);

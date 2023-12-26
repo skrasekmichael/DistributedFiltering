@@ -1,4 +1,6 @@
-﻿namespace DistributedFiltering.Abstractions.Contracts;
+﻿using DistributedFiltering.Abstractions.Interfaces;
+
+namespace DistributedFiltering.Abstractions.Contracts;
 
 [GenerateSerializer, Immutable]
 public sealed class Batch
@@ -10,5 +12,7 @@ public sealed class Batch
 	[Id(2)]
 	public required Rectangle FilteringWindow { get; init; }
 	[Id(3)]
-	public required Size ImageSize { get; init; }
+	public required int Index { get; init; }
+	[Id(4)]
+	public required IFilterParameters Parameters { get; init; }
 }

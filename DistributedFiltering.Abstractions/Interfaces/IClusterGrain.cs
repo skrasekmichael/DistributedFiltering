@@ -2,10 +2,9 @@
 
 namespace DistributedFiltering.Abstractions.Interfaces;
 
-public interface IWorkManagerGrain : IGrainWithIntegerKey
+public interface IClusterGrain : IGrainWithIntegerKey
 {
-	Task DistributeWorkAsync<TFilterGrain, TFilterParameters>(ImageData input, TFilterParameters parameters)
-		where TFilterGrain : IDistributedFilter<TFilterParameters>, new()
+	Task<bool> DistributeWorkAsync<TFilterParameters>(ImageData input, TFilterParameters parameters)
 		where TFilterParameters : IFilterParameters;
 
 	ValueTask StopProcessingAsync();
@@ -17,5 +16,5 @@ public interface IWorkManagerGrain : IGrainWithIntegerKey
 	Task RegisterCollectorAsync(IResultCollector collector);
 	Task UnregisterCollectorAsync(IResultCollector collector);
 
-	Task FinalizeAsync();
+	Task ReportBatchResultAsync(byte[] data, int orderingIndex, Guid workerId);
 }
