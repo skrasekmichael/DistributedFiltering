@@ -70,9 +70,11 @@ public sealed class Worker(ILogger<Worker> logger, IClusterGrain workManagerGrai
 		Task.Run(async () =>
 		{
 			state = WorkState.InProgress;
-			logger.LogInformation("Filtering segment {segmentIndex}.", batch.Index);
+			logger.LogInformation("Filtering segment #{segmentIndex}.", batch.Index);
+			var timestamp = TimeProvider.System.GetTimestamp();
 			var output = distributedFilter.Filter(batch);
-			logger.LogInformation("Segment {segmentIndex} completed.", batch.Index);
+			var elapsed = TimeProvider.System.GetElapsedTime(timestamp);
+			logger.LogInformation("Segment #{segmentIndex} completed in {time}.", batch.Index, elapsed);
 
 			state = WorkState.Completed;
 			await workManagerGrain.ReportBatchResultAsync(output, batch.Index, id);

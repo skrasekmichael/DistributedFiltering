@@ -12,6 +12,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 	private long imageLength = 1;
 	private Size imageSize;
 	private string outputFileName = string.Empty;
+	private long timestamp;
 
 	private readonly List<IWorker> idleWorkers = [];
 	private readonly List<IWorker> activeWorkers = [];
@@ -107,6 +108,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		logger.LogInformation("Work divided into {bacthCount} batches.", batches.Length);
 
 		logger.LogInformation("Distributing work to workers.");
+		timestamp = TimeProvider.System.GetTimestamp();
 
 		int index = 0;
 		while (index < batches.Length && idleWorkers.Count > 0)
@@ -221,7 +223,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		completedWork.Add(orderingIndex, data);
 		processedCount += data.Length;
 
-		logger.LogInformation("Data {index} reported.", orderingIndex);
+		logger.LogInformation("Data segment #{index} reported.", orderingIndex);
 
 		var worker = activeWorkers.Find(worker => worker.GetPrimaryKey() == workerId)!;
 		activeWorkers.Remove(worker);
@@ -229,7 +231,10 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 
 		if (processedCount == imageLength)
 		{
-			logger.LogInformation("Building image.");
+			var elapesd = TimeProvider.System.GetElapsedTime(timestamp);
+			logger.LogInformation("Data processed in {time}.", elapesd);
+
+			logger.LogInformation("Building image ...");
 
 			var image = ImageDataUtils.BuildImage(
 				data: completedWork
@@ -267,7 +272,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		{
 			workDistribution.Add(workerId, batch);
 			activeWorkers.Add(worker);
-			logger.LogInformation("Batch {index} distributed to worker {workerId}", batch.Index, workerId);
+			logger.LogInformation("Batch #{index} distributed to worker {workerId}", batch.Index, workerId);
 		}
 		else
 		{
@@ -292,7 +297,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		{
 			workDistribution.Add(workerId, batch);
 			activeWorkers.Add(worker);
-			logger.LogInformation("Batch {index} distributed to worker {workerId}", batch.Index, workerId);
+			logger.LogInformation("Batch #{index} distributed to worker {workerId}", batch.Index, workerId);
 		}
 		else
 		{
