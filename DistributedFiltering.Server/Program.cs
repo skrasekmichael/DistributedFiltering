@@ -4,16 +4,29 @@ using DistributedFiltering.Server;
 using DistributedFiltering.Server.Requests;
 using DistributedFiltering.Server.Services;
 using Orleans.Configuration;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseOrleans(orleans =>
+builder.Host.UseOrleans((ISiloBuilder orleans) =>
 {
-	orleans.UseLocalhostClustering();
+	var clusterConfiguration = builder.Configuration.GetSection("Cluster");
+	if (!IPAddress.TryParse(clusterConfiguration["Address"], out var address))
+	{
+		address = IPAddress.Loopback;
+	}
+
+	orleans.UseDevelopmentClustering(new IPEndPoint(address, 11_111));
+
 	orleans.Configure<ClusterOptions>(options =>
 	{
 		options.ClusterId = "dev";
 		options.ServiceId = "distributed-filtering";
+	});
+
+	orleans.Configure<EndpointOptions>(options =>
+	{
+		options.AdvertisedIPAddress = address;
 	});
 });
 
@@ -26,8 +39,7 @@ builder.Services.AddSingleton(serviceProvider =>
 	var collectorLogger = serviceProvider.GetRequiredService<ILogger<ResultCollector>>();
 	var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
 
-	var collector = new ResultCollector(collectorLogger, environment.WebRootPath);
-	return collector;
+	return new ResultCollector(collectorLogger, environment.WebRootPath);
 });
 
 var app = builder.Build();

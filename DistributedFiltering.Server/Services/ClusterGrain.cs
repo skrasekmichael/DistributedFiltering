@@ -84,7 +84,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 	{
 		if (state is not WorkState.Completed and not WorkState.Canceled and not WorkState.NotStarted)
 		{
-			logger.LogError("Cluster is already working ... (status: {clusterStatus})", state);
+			logger.LogError("Cluster is already working (status: {clusterStatus})", state);
 			return false;
 		}
 
@@ -95,7 +95,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		}
 
 		state = WorkState.Preparing;
-		logger.LogInformation("Preparing work.");
+		logger.LogInformation("Preparing work ...");
 
 		processedCount = 0;
 		workDistribution.Clear();
@@ -107,7 +107,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 		var batches = await Task.Run(() => ImageDataUtils.SplitWork(ref image, maxBatchSize, parameters));
 		logger.LogInformation("Work divided into {bacthCount} batches.", batches.Length);
 
-		logger.LogInformation("Distributing work to workers.");
+		logger.LogInformation("Distributing work to workers ...");
 		timestamp = TimeProvider.System.GetTimestamp();
 
 		int index = 0;
@@ -117,7 +117,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 			idleWorkers.Remove(worker);
 
 			var workerId = worker.GetPrimaryKey();
-			logger.LogInformation("Starting worker {workerId}.", workerId);
+			logger.LogInformation("Starting worker {workerId} ...", workerId);
 
 			if (await worker.StartProcessingAsync(batches[index], workerId))
 			{
@@ -136,7 +136,7 @@ public sealed class ClusterGrain(ILogger<ClusterGrain> logger) : Grain, ICluster
 			scheduledWork.Enqueue(batches[i]);
 		}
 
-		logger.LogInformation("Batches distributed to {workerCount} workers, {rest} batches waiting for available workers.", index, batches.Length - index);
+		logger.LogInformation("{workerCount} batches distributed to workers, {rest} batches waiting for available workers.", index, batches.Length - index);
 		state = WorkState.InProgress;
 		return true;
 	}

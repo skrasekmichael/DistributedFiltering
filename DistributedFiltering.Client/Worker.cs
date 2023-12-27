@@ -47,7 +47,7 @@ public sealed class Worker(ILogger<Worker> logger, IClusterGrain workManagerGrai
 	{
 		if (state is not WorkState.Completed and not WorkState.Canceled and not WorkState.NotStarted)
 		{
-			logger.LogError("Worker is already working ... (status: {clusterStatus})", state);
+			logger.LogError("Worker is already working (status: {clusterStatus})", state);
 			return Task.FromResult(false);
 		}
 
@@ -61,16 +61,16 @@ public sealed class Worker(ILogger<Worker> logger, IClusterGrain workManagerGrai
 		catch
 		{
 			state = WorkState.Canceled;
-			logger.LogError("Worker is already working ... (status: {clusterStatus})", state);
+			logger.LogCritical("Non-existent filter fro given parameters (status: {clusterStatus})", state);
 			return Task.FromResult(false);
 		}
 
-		logger.LogInformation("Starting filter of type {filterType}.", distributedFilter.GetType());
+		logger.LogInformation("Starting filter of type {filterType} ...", distributedFilter.GetType());
 
 		Task.Run(async () =>
 		{
 			state = WorkState.InProgress;
-			logger.LogInformation("Filtering segment #{segmentIndex}.", batch.Index);
+			logger.LogInformation("Filtering segment #{segmentIndex} ...", batch.Index);
 			var timestamp = TimeProvider.System.GetTimestamp();
 			var output = distributedFilter.Filter(batch);
 			var elapsed = TimeProvider.System.GetElapsedTime(timestamp);

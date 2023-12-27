@@ -1,24 +1,34 @@
 ﻿using DistributedFiltering.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
+using System.Net;
 
-await new HostBuilder()
-	.UseOrleansClient(orleans =>
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.UseOrleansClient(orleans =>
+{
+	var clusterConfiguration = builder.Configuration.GetSection("Cluster");
+
+	if (!IPAddress.TryParse(clusterConfiguration["Address"], out var address))
 	{
-		orleans.UseLocalhostClustering();
-		orleans.Configure<ClusterOptions>(options =>
-		{
-			options.ClusterId = "dev";
-			options.ServiceId = "distributed-filtering";
-		});
-	})
-	.ConfigureServices(services =>
+		address = IPAddress.Loopback;
+	}
+
+	if (!int.TryParse(clusterConfiguration["Port"], out var port))
 	{
-		services.AddHostedService<WorkerConnectionService>();
-	})
-	.ConfigureLogging(logging =>
+		port = 30_000;
+	}
+
+	orleans.UseStaticClustering(new IPEndPoint(address, port));
+	orleans.Configure<ClusterOptions>(options =>
 	{
-		logging.AddConsole();
-	}).RunConsoleAsync();
+		options.ClusterId = "dev";
+		options.ServiceId = "distributed-filtering";
+	});
+});
+
+builder.Services.AddHostedService<ConnectWorkerOnStartup>();
+
+using var app = builder.Build();
+await app.RunAsync();
