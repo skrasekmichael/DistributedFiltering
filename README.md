@@ -11,3 +11,22 @@ The server provides an API to:
 - initiate a job (apply bilateral filter/add gausian noise) - divide an image into batches of work and distribute them to workers.
 - retrive status/progress of the current job and currently working clients
 - cancel current job
+
+*Note: server runs swagger for API manipulation.*
+
+## Running
+*Premise: the application has been build* (`dotnet build DistributedFiltering.sln`).
+
+Run server with the Orleans cluster:
+```
+dotnet DistributedFiltering.Server.dll --Cluster:Address=192.168.0.1
+```
+Server will initiate silo (cluster) at the address `192.168.0.1`, when unspecified, server will use address from the `appsettings.json` (by default `127.0.0.1`).
+This will also run ASP.NET Core Web API with metioned endpoints.
+
+Run client:
+```
+dotnet DistributedFiltering.Client.dll --Cluster:Address=192.168.0.1
+```
+Client tries to connect to the Orleans cluster at the address `192.168.0.1`, when unspecified, client will use address from the `appsettings.json` (by default `127.0.0.1`).
+If the client cannot connect to the server or the server crashes, the client crashes.
